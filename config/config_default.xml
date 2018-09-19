@@ -3,9 +3,14 @@
 <config>
     <!-- Files containing necessary info for program to run successfully, usually located in ./input -->
     <inputfiles>
-        <!-- file with export from aleph, will be processed for list of {sysno, uuid, ...} tuples-->
+        <!-- file with export from aleph, will be processed for list of {sysno, uuid, ...} -->
         <kramlinks>./input/856_kramerius_links.txt</kramlinks>
         <!-- file containing info about missing metadata -->
         <errfile>./input/kramerius_err.txt</errfile>
     </inputfiles>
+    <!-- Matching patterns for metadata being replaced -->
+    <patternmatch>
+        <sysno>^\d\d\d\d\d\d\d\d\d</sysno>
+        <uuid>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</uuid>
+    </patternmatch>
 </config>
