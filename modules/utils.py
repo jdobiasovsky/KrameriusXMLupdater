@@ -13,7 +13,7 @@ def loadconfig():
     variablevalues = [config.inputfiles.kramlinks.string,
                       config.inputfiles.errfile.string,
                       config.patternmatch.sysno.string,
-                      config.patternmatch.uuid.string
+                      config.patternmatch.uuid.string,
                       # TODO append other config values as they go
                       ]
     loadedconfig = dict(zip(variablenames, variablevalues))
@@ -64,7 +64,7 @@ def fetchlinkdata(kramlinkfile, sysnopattern, uuidpattern):
         else:
             # if either sysno or uuid is not matched with regex, generates message into output error file
             allmatchescorrect = False
-            with open("./output/errlist.txt", "w+") as errlist:
+            with open("./output/error_log.txt", "w+") as errlist:
                 if sysno is None:
                     errlist.write("sysno not found for: " + uuid.group(0))
                 if uuid is None:
@@ -73,7 +73,7 @@ def fetchlinkdata(kramlinkfile, sysnopattern, uuidpattern):
                     errlist.write("Error on line: " + line)
 
     if allmatchescorrect is False:
-        print("Some lines weren't processed succesfully, log generated...")
+        print("Some lines in catalog data weren't processed succesfully, log generated...")
 
     return linkdata
 
