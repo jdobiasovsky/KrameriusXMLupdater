@@ -1,45 +1,22 @@
-from bs4 import BeautifulSoup
+from modules import xmlhandler
 import re
+import os
+import shutil
 
 
-def loadconfig():
-    # reads data from xml and returns them as dictionary for later use
-    with open("./config/config.xml") as configfile:
-        content = configfile.read()
-    config = BeautifulSoup(content, "lxml")
-    # reads content from configfile into bs4 format
+def yes_no(prompt):
+    yes = ['yes', 'y', 'ye', '']
+    no = ['no', 'n']
 
-    variablenames = ['kramlinks', 'errfile', "sysnopattern", "uuidpattern"]
-    variablevalues = [config.inputfiles.kramlinks.string,
-                      config.inputfiles.errfile.string,
-                      config.patternmatch.sysno.string,
-                      config.patternmatch.uuid.string,
-                      # TODO append other config values as they go
-                      ]
-    loadedconfig = dict(zip(variablenames, variablevalues))
-    return loadedconfig
-
-
-def verifyconfig(target):
-    try:
-        if 'errfile' in target is None:
-            raise ValueError('Errfile not defined in config!')
-        if 'kramlinks' in target is None:
-            raise ValueError('Kramlink not defined in config!')
-
-    except ValueError:
-        print("Unable to continue... exiting")
-        exit()
-
-    # TODO finish verifyconfig()
-    """
-    try:
-        my_abs_path = my_file.resolve()
-    except FileNotFoundError:
-    # doesn't exist
-    else:
-    # exists
-    """
+    while True:
+        # will loop forever until value is returned
+        choice = input(prompt).lower()
+        if choice in yes:
+            return True
+        elif choice in no:
+            return False
+        else:
+            print("Please respond with 'yes' or 'no'\n")
 
 
 def fetchlinkdata(kramlinkfile, sysnopattern, uuidpattern):
@@ -70,7 +47,7 @@ def fetchlinkdata(kramlinkfile, sysnopattern, uuidpattern):
                 if uuid is None:
                     errlist.write("uuid not found for: " + sysno.group(0))
                 else:
-                    errlist.write("Error on line: " + line)
+                    errlist.write("Unexpected error on line: " + line)
 
     if allmatchescorrect is False:
         print("Some lines in catalog data weren't processed succesfully, log generated...")
@@ -78,7 +55,7 @@ def fetchlinkdata(kramlinkfile, sysnopattern, uuidpattern):
     return linkdata
 
 
-def matchdata(catalogdata,uuidlist):
+def matchdata(catalogdata, uuidlist):
     generatedpairs = dict()
 
     for uuid in uuidlist:
@@ -97,10 +74,36 @@ def matchdata(catalogdata,uuidlist):
 
     return generatedpairs
 
-"""
-def processXML():
+
+def sysnocheck(sysno_configval, uuid_list, fcrepo_export):
+    if sysno_configval == "yes":
+        print("Checking for files with system numbers already present")
+        # TODO uncomment and move files
+        '''
+        for doc_id in uuid_list:
+            # check whether system number is already present or not
+                    
+            
+            try:
+                if xmlhandler.xmlcheck(fcrepo_export=fcrepo_export,
+                                       lookfortag="mods:recordIdentifier",
+                                       lookforattribute="source",
+                                       lookforattrvalue="CZ PrSTK",
+                                       uuid=doc_id) is True:
+    
+            except FileNotFoundError:
+                with open("./output/error_log.txt", "w+") as errorlog:
+                    errorlog.write("File: uuid:" + doc_id + " was not found...")
+                continue
+    if sysno_configval == "no":
+        print("Sysnocheck skipped...")
+    '''
 
 
-
-def zipdocs():
-"""
+def backuporiginals(backupdirectory, fcrepo_export):
+    for file in os.listdir(fcrepo_export):
+        try:
+            shutil.copy2(fcrepo_export + file, backupdirectory + file)
+        except FileNotFoundError as err:
+            print("File " + file + " not found! Unable to make backup, exiting for safety reasons")
+            print(err)
