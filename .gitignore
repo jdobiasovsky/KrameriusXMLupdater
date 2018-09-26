@@ -1,5 +1,6 @@
 .idea
 config/config.xml
-input/**
-backup/**
-output/**
+input
+backup
+output
+modules/__pycache__/
