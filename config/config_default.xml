@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-
 <config>
     <!-- Files containing necessary info for program to run successfully, usually located in ./input -->
     <inputfiles>
@@ -7,10 +6,27 @@
         <kramlinks>./input/856_kramerius_links.txt</kramlinks>
         <!-- file containing info about missing metadata -->
         <errfile>./input/kramerius_err.txt</errfile>
+        <!-- directory for files exported from fedora.
+             Also make sure backup directory path has "/" at the end -->
+        <fcrepo_export>./input/fcrepo_export/</fcrepo_export>
     </inputfiles>
     <!-- Matching patterns for metadata being replaced -->
     <patternmatch>
         <sysno>^\d\d\d\d\d\d\d\d\d</sysno>
         <uuid>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</uuid>
     </patternmatch>
+    <!--multiple safety precautions to prevent data loss-->
+    <safetynets>
+        <!-- define backup -->
+        <backup>
+            <makebackup>yes</makebackup>
+            <!-- make sure backup directory path has "/" at the end, otherwise backup will fail -->
+            <backupdir>./backup/</backupdir>
+        </backup>
+        <!-- program will check whether any files already have sysno present -->
+        <checksysno>no</checksysno>
+    </safetynets>
+    <output>
+        <outputdir>./output/</outputdir>
+    </output>
 </config>
