@@ -17,10 +17,6 @@ elif all(configuration.verifyconfig(config)) is True:
 
 
 termcolor.cprint("\n=======================Check configuration=======================", 'green')
-print("kramlinks", "errfile", "fcrepo_export",
-                     "sysnopattern", "uuidpattern",
-                     "makebackup", "backupdir", "checksysno",
-                     "outputdir")
 print("Catalog file: ", config["kramlinks"])
 print("Error file: ", config["errfile"])
 print("Fedora export directory: ", config["fcrepo_export"])
