@@ -13,8 +13,7 @@ def verifyconfig(config):
 
     if config["makebackup"] == "yes":
         dirlist = (os.path.isdir(config["fcrepo_export"]),
-                   os.path.isdir(config["backupdir"]),
-                   os.path.isdir(config["outputdir"]))
+                   os.path.isdir(config["backupdir"]))
 
         if all(dirlist) is False:
             print("It seems that this is the first time you're running the program.\n"
@@ -28,14 +27,6 @@ def verifyconfig(config):
                     print("Exiting...")
                     exit()
 
-            if os.path.isdir(config["outputdir"]) is False:
-                if yes_no("Required output directory is missing. "
-                                "Create folder (y) or stop (n)?:\n") is True:
-                    os.mkdir(config["outputdir"])
-                else:
-                    print("Exiting...")
-                    exit()
-
             if os.path.isdir(config["backupdir"]) is False:
                 if yes_no("Required backup directory is missing. "
                                 "Create folder (y) or stop (n)?:\n") is True:
@@ -45,8 +36,7 @@ def verifyconfig(config):
                     exit()
 
     if config["makebackup"] == "no":
-        dirlist = (os.path.isdir(config["fcrepo_export"]),
-                   os.path.isdir(config["outputdir"]))
+        dirlist = (os.path.isdir(config["fcrepo_export"]))
 
         if all(dirlist) is False:
             print("It seems that this is the first time you're running the program.\n"
@@ -59,24 +49,16 @@ def verifyconfig(config):
                     print("Exiting...")
                     exit()
 
-            if os.path.isdir(config["outputdir"]) is False:
-                if yes_no("Required output directory is missing. Create folder (y) or stop (n)?:\n") is True:
-                    os.mkdir(config["outputdir"])
-                else:
-                    print("Exiting...")
-                    exit()
     direval = True
 
     if config["makebackup"] == "yes":
         dirlist = (os.path.isdir(config["fcrepo_export"]),
-                   os.path.isdir(config["backupdir"]),
-                   os.path.isdir(config["outputdir"]))
+                   os.path.isdir(config["backupdir"]))
         if all(dirlist) is False:
             direval = False
 
     if config["makebackup"] == "no":
-        dirlist = (os.path.isdir(config["fcrepo_export"]),
-                   os.path.isdir(config["outputdir"]))
+        dirlist = (os.path.isdir(config["fcrepo_export"]))
         if all(dirlist) is False:
             direval = False
     print("Finished directory check...")

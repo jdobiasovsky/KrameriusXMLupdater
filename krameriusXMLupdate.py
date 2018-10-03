@@ -20,7 +20,6 @@ termcolor.cprint("\n=======================Check configuration==================
 print("Catalog file: ", config["kramlinks"])
 print("Error file: ", config["errfile"])
 print("Fedora export directory: ", config["fcrepo_export"])
-print("Output directory: ", config["outputdir"])
 print("System number match pattern: ", config["sysnopattern"])
 print("Document ID match pattern: ", config["uuidpattern"])
 print("Make backup?: ", config["makebackup"])
@@ -29,7 +28,7 @@ if config["makebackup"] == "yes":
 print("Check for existing system numbers?: ", config["checksysno"])
 
 termcolor.cprint('\nContinue?', 'red', attrs=['blink'])
-if utils.yes_no("Yes / No") is False:
+if utils.yes_no("Yes / No\n") is False:
     exit()
 
 
@@ -60,5 +59,6 @@ if config["makebackup"] == "yes":
 
 termcolor.cprint("\n=======================Editing=======================", 'green')
 for key, value in data_pairs.items():
-    xmlhandler.xmledit(fcrepo_export=config["fcrepo_export"], uuid=key, sysno=value)
+    xmlhandler.xmledit(fcrepo_export=config["fcrepo_export"], uuid=key, sysno=value,
+                       checkforexistingsysno=config["checksysno"])
     # TODO *mortal kombat voice* FINISH THIS!

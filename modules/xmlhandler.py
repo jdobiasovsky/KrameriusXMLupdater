@@ -1,7 +1,8 @@
 import os
 from xml import dom
 import xml.dom.minidom
-
+from modules import termcolor
+from modules.utils import yes_no
 
 def loadfilelist(fcrepo_export):
     # loads files present in fcrepo directory
@@ -38,45 +39,71 @@ def generateexportlist(catalogdict, fcrepo_export):
         return False
 
 
-def xmlcheck(fcrepo_export, lookfortag, lookforattribute, lookforattrvalue, uuid):
-    # reads xml and checks whether given metadata element is present
+def xmlcheck(lookfortag, attribute, attrvalue, parseddoc):
+    # checks whether given metadata element is present in provided parseddoc
 
-    datasource = open(fcrepo_export + "uuid_" + uuid + ".xml", "r")
-
-    doc = xml.dom.minidom.parse(datasource)
     # print("Scanning: ", doc.firstChild.tagName, doc.firstChild.getAttribute("PID"))
 
-    for elem in doc.getElementsByTagName(lookfortag):
-        '''
-        Method getElementsByTagName returns a list. The string held between the open and closing
-        tags is a child node that is accessed with element method childNodes.
-        (tl;dr node value is represented as child of element in DOM)
-        '''
-        if elem.getAttribute(lookforattribute) == lookforattrvalue:
+    for elem in parseddoc.getElementsByTagName(lookfortag):
+        # find element with tag name "lookfortag", if there is one, check whether it's value fits "attrvalue".
+        # If they both fit the passed parameters, function returns True. In all other cases False
+        # Method getElementsByTagName returns a list. Attribute value is represented as attribute's child in DOM
+
+        if elem.getAttribute(attribute) == attrvalue:
             return True
 
     return False
 
 
-def xmledit(fcrepo_export, uuid, sysno):
-    # TODO open file based on inputdir and uuid
+def returnattrval(lookfortag, attribute, attrvalue, parseddoc):
+        for elem in parseddoc.getElementsByTagName(lookfortag):
+            if elem.getAttribute(attribute) == attrvalue:
+                elemval = elem.firstChild.nodeValue
+                return elemval
+
+        return False
+
+def docstatus(code):
+    if code == "ok":
+        termcolor.cprint("Sucess!", 'green')
+    if code == "skip":
+        termcolor.cprint("Skipped...", 'yellow')
+    if code == "fail":
+        termcolor.cprint("Failed!", 'red')
+
+
+def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
+    # opens file, parses documents and makes necessary edits
+    print("Editing " + fcrepo_export + "uuid_" + uuid + ".xml")
     datasource = open(fcrepo_export + "uuid_" + uuid + ".xml", "r")
     doc = xml.dom.minidom.parse(datasource)
-    # TODO check if the tag already exists, if so check value and overwrite / don't
-    if xmlcheck(fcrepo_export=fcrepo_export,
-                        lookfortag="mods:recordIdentifier",
-                        lookforattribute="source",
-                        lookforattrvalue="CZ PrSTK",
-                        uuid=uuid) is True:
-        print("System number already present, review document or skip?")
-        '''
-        Method getElementsByTagName returns a list. The string held between the open and closing
-        tags is a child node that is accessed with element method childNodes.
-        (tl;dr node value is represented as child of element in DOM)
-        '''
 
+    # TODO check if the tag already exists, if so check value and overwrite / don't
+
+    if xmlcheck(lookfortag="mods:recordIdentifier",
+                attribute="source",
+                attrvalue="CZ PrSTK",
+                parseddoc=doc) is True:
+
+        print("Document " + uuid + " already has sysno assigned...")
+
+        print("Current sysno:             ", returnattrval(lookfortag="mods:recordIdentifier",
+                                                           attribute="source",
+                                                           attrvalue="CZ PrSTK",
+                                                           parseddoc=doc))
+
+        print("Sysno about to be assigned: " + sysno)
+        print("\nSkip?")
+        if yes_no("Yes / No\n") is True:
+            docstatus("skip")
+            print("---------------------------------------------------------------------")
+            return
+
+    print("Writing system number.")
     # TODO find proper position for new tag to be appended
     # TODO write into file, save and copy to output
+    docstatus("ok")
+    print("---------------------------------------------------------------------")
 
 
 
