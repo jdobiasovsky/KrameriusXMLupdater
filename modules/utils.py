@@ -1,4 +1,3 @@
-from modules import xmlhandler
 import re
 import os
 import shutil
@@ -69,35 +68,12 @@ def matchdata(catalogdata, uuidlist):
 
         else:
             # if no match is found, raise exception
-            print("This is wrong, fix me...")
-            # TODO raise error and move file to update_failed
+            print("Failed to match: " + uuid.group(0) + "with systemnumber")
+            with open("./error_log.txt", "w+") as errlist:
+                errlist.write("Failed to match: " + uuid.group(0))
+            continue
 
     return generatedpairs
-
-
-def sysnocheck(sysno_configval, uuid_list, fcrepo_export):
-    if sysno_configval == "yes":
-        print("Checking for files with system numbers already present")
-        # TODO uncomment and move files
-        '''
-        for doc_id in uuid_list:
-            # check whether system number is already present or not
-                    
-            
-            try:
-                if xmlhandler.xmlcheck(fcrepo_export=fcrepo_export,
-                                       lookfortag="mods:recordIdentifier",
-                                       lookforattribute="source",
-                                       lookforattrvalue="CZ PrSTK",
-                                       uuid=doc_id) is True:
-    
-            except FileNotFoundError:
-                with open("./output/error_log.txt", "w+") as errorlog:
-                    errorlog.write("File: uuid:" + doc_id + " was not found...")
-                continue
-    if sysno_configval == "no":
-        print("Sysnocheck skipped...")
-    '''
 
 
 def backuporiginals(backupdirectory, fcrepo_export):

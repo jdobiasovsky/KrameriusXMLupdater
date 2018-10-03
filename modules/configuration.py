@@ -103,8 +103,7 @@ def loadconfig():
 
     variablenames = ["kramlinks", "errfile", "fcrepo_export",
                      "sysnopattern", "uuidpattern",
-                     "makebackup", "backupdir", "checksysno",
-                     "outputdir"
+                     "makebackup", "backupdir", "checksysno"
                      ]
 
     variablevalues = [config.inputfiles.kramlinks.string,
@@ -114,8 +113,7 @@ def loadconfig():
                       config.patternmatch.uuid.string,
                       config.safetynets.backup.makebackup.string,
                       config.safetynets.backup.backupdir.string,
-                      config.safetynets.checksysno.string,
-                      config.output.outputdir.string,
+                      config.safetynets.checksysno.string
                       # TODO append other config values as they go
                       ]
 

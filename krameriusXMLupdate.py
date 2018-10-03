@@ -53,13 +53,12 @@ else:
 uuid_list = xmlhandler.loaduuidlist(fcrepo_export=config["fcrepo_export"])
 data_pairs = utils.matchdata(catalog_data, uuid_list)
 
-
-utils.sysnocheck(sysno_configval=config["checksysno"], uuid_list=uuid_list, fcrepo_export=config["fcrepo_export"])
-
-
 if config["makebackup"] == "yes":
     print("Backing files into ./backup/")
     utils.backuporiginals(backupdirectory=config["backupdir"], fcrepo_export=config["fcrepo_export"])
 
 
 termcolor.cprint("\n=======================Editing=======================", 'green')
+for key, value in data_pairs.items():
+    xmlhandler.xmledit(fcrepo_export=config["fcrepo_export"], uuid=key, sysno=value)
+    # TODO *mortal kombat voice* FINISH THIS!

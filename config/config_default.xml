@@ -26,7 +26,4 @@
         <!-- program will check whether any files already have sysno present -->
         <checksysno>no</checksysno>
     </safetynets>
-    <output>
-        <outputdir>./output/</outputdir>
-    </output>
 </config>

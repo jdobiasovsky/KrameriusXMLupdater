@@ -28,7 +28,7 @@ def generateexportlist(catalogdict, fcrepo_export):
 
     if not os.listdir(path=fcrepo_export):
         print("Generating list for fedora export...")
-        with open("./output/export_list.txt", 'w') as f:
+        with open("./export_list.txt", 'w') as f:
             for key in keylist:
                 f.write("uuid:" + key + "\n")
         return True
@@ -44,10 +44,9 @@ def xmlcheck(fcrepo_export, lookfortag, lookforattribute, lookforattrvalue, uuid
     datasource = open(fcrepo_export + "uuid_" + uuid + ".xml", "r")
 
     doc = xml.dom.minidom.parse(datasource)
-    print("Scanning: ", doc.firstChild.tagName, doc.firstChild.getAttribute("PID"))
+    # print("Scanning: ", doc.firstChild.tagName, doc.firstChild.getAttribute("PID"))
 
     for elem in doc.getElementsByTagName(lookfortag):
-        print(elem)
         '''
         Method getElementsByTagName returns a list. The string held between the open and closing
         tags is a child node that is accessed with element method childNodes.
@@ -58,6 +57,26 @@ def xmlcheck(fcrepo_export, lookfortag, lookforattribute, lookforattrvalue, uuid
 
     return False
 
+
+def xmledit(fcrepo_export, uuid, sysno):
+    # TODO open file based on inputdir and uuid
+    datasource = open(fcrepo_export + "uuid_" + uuid + ".xml", "r")
+    doc = xml.dom.minidom.parse(datasource)
+    # TODO check if the tag already exists, if so check value and overwrite / don't
+    if xmlcheck(fcrepo_export=fcrepo_export,
+                        lookfortag="mods:recordIdentifier",
+                        lookforattribute="source",
+                        lookforattrvalue="CZ PrSTK",
+                        uuid=uuid) is True:
+        print("System number already present, review document or skip?")
+        '''
+        Method getElementsByTagName returns a list. The string held between the open and closing
+        tags is a child node that is accessed with element method childNodes.
+        (tl;dr node value is represented as child of element in DOM)
+        '''
+
+    # TODO find proper position for new tag to be appended
+    # TODO write into file, save and copy to output
 
 
 
