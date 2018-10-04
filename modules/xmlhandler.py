@@ -1,5 +1,4 @@
 import os
-from xml import dom
 import xml.dom.minidom
 from modules import termcolor
 from modules.utils import yes_no
@@ -63,7 +62,8 @@ def returnattrval(lookfortag, attribute, attrvalue, parseddoc):
 
         return False
 
-def docstatus(code):
+
+def status(code):
     if code == "ok":
         termcolor.cprint("Sucess!", 'green')
     if code == "skip":
@@ -77,36 +77,52 @@ def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
     print("Editing " + fcrepo_export + "uuid_" + uuid + ".xml")
     datasource = open(fcrepo_export + "uuid_" + uuid + ".xml", "r")
     doc = xml.dom.minidom.parse(datasource)
+    documentroot = doc.getElementsByTagName("<mods:modsCollection>")[0]
 
-    # TODO check if the tag already exists, if so check value and overwrite / don't
+    if checkforexistingsysno == "yes":
+        if xmlcheck(lookfortag="mods:recordIdentifier",
+                    attribute="source",
+                    attrvalue="CZ PrSTK",
+                    parseddoc=doc) is True:
 
-    if xmlcheck(lookfortag="mods:recordIdentifier",
-                attribute="source",
-                attrvalue="CZ PrSTK",
-                parseddoc=doc) is True:
+            print("Document " + uuid + " already has sysno assigned...")
 
-        print("Document " + uuid + " already has sysno assigned...")
+            print("Current sysno:             ", returnattrval(lookfortag="mods:recordIdentifier",
+                                                               attribute="source",
+                                                               attrvalue="CZ PrSTK",
+                                                               parseddoc=doc))
 
-        print("Current sysno:             ", returnattrval(lookfortag="mods:recordIdentifier",
-                                                           attribute="source",
-                                                           attrvalue="CZ PrSTK",
-                                                           parseddoc=doc))
-
-        print("Sysno about to be assigned: " + sysno)
-        print("\nSkip?")
-        if yes_no("Yes / No\n") is True:
-            docstatus("skip")
-            print("---------------------------------------------------------------------")
-            return
+            print("Sysno about to be assigned: " + sysno)
+            print("\nSkip?")
+            if yes_no("Yes / No\n") is True:
+                status("skip")
+                print("---------------------------------------------------------------------")
+                return
 
     print("Writing system number.")
-    # TODO find proper position for new tag to be appended
-    # TODO write into file, save and copy to output
-    docstatus("ok")
+    recordinfo = doc.getElementsByTagName("<mods:recordInfo>")[0]
+    if recordinfo is None:
+        root = doc.getElementsByTagName("<mods:mods>")[0]
+        infonode = doc.createElement("<mods:recordInfo>")
+        root.appendChild(infonode)
+
+    # create new node object and set attributes
+    identifiernode = doc.createElement('<mods:recordIdentifier>')
+    identifiernode.setAttribute("source", "CZ PrSTK")
+
+    # create new node with text containing sysno
+    nodetext = doc.createTextNode(sysno)
+
+    # append child node with text to identifierinfo
+    identifiernode.appendChild(nodetext)
+
+    # add newline after new child
+    newline = doc.createTextNode('\n')
+    identifiernode.insertBefore(newline)
+
+    # create new document in output directory and write contents of xml file into it
+    outputdocument = open("./output/uuid_" + uuid + ".xml", "w")
+    documentroot.writexml(outputdocument)
+
+    status("ok")
     print("---------------------------------------------------------------------")
-
-
-
-
-
-
