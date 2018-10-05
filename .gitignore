@@ -3,4 +3,5 @@ config/config.xml
 input
 backup
 output
+error_log.txt
 modules/__pycache__/

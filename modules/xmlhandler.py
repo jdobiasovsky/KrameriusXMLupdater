@@ -2,6 +2,8 @@ import os
 import xml.dom.minidom
 from modules import termcolor
 from modules.utils import yes_no
+from bs4 import BeautifulSoup
+
 
 def loadfilelist(fcrepo_export):
     # loads files present in fcrepo directory
@@ -75,54 +77,58 @@ def status(code):
 def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
     # opens file, parses documents and makes necessary edits
     print("Editing " + fcrepo_export + "uuid_" + uuid + ".xml")
-    datasource = open(fcrepo_export + "uuid_" + uuid + ".xml", "r")
-    doc = xml.dom.minidom.parse(datasource)
-    documentroot = doc.getElementsByTagName("<mods:modsCollection>")[0]
+    print("Opening file...")
+    with open(fcrepo_export + "uuid_" + uuid + ".xml", "r") as datasource:
+        print("Parsing")
+        doc = xml.dom.minidom.parse(datasource)
 
-    if checkforexistingsysno == "yes":
-        if xmlcheck(lookfortag="mods:recordIdentifier",
-                    attribute="source",
-                    attrvalue="CZ PrSTK",
-                    parseddoc=doc) is True:
+        if checkforexistingsysno == "yes":
+            print("System number check...")
+            if xmlcheck(lookfortag="mods:recordIdentifier",
+                        attribute="source",
+                        attrvalue="CZ PrSTK",
+                        parseddoc=doc) is True:
 
-            print("Document " + uuid + " already has sysno assigned...")
+                print("Document " + uuid + " already has sysno assigned...")
 
-            print("Current sysno:             ", returnattrval(lookfortag="mods:recordIdentifier",
-                                                               attribute="source",
-                                                               attrvalue="CZ PrSTK",
-                                                               parseddoc=doc))
+                print("Current sysno:             ", returnattrval(lookfortag="mods:recordIdentifier",
+                                                                   attribute="source",
+                                                                   attrvalue="CZ PrSTK",
+                                                                   parseddoc=doc))
 
-            print("Sysno about to be assigned: " + sysno)
-            print("\nSkip?")
-            if yes_no("Yes / No\n") is True:
-                status("skip")
-                print("---------------------------------------------------------------------")
-                return
+                print("Sysno about to be assigned: " + sysno)
+                print("\nSkip?")
 
-    print("Writing system number.")
-    recordinfo = doc.getElementsByTagName("<mods:recordInfo>")[0]
-    if recordinfo is None:
-        root = doc.getElementsByTagName("<mods:mods>")[0]
-        infonode = doc.createElement("<mods:recordInfo>")
-        root.appendChild(infonode)
+                if yes_no("Yes / No\n") is True:
+                    status("skip")
+                    print("---------------------------------------------------------------------")
+                    return
 
-    # create new node object and set attributes
-    identifiernode = doc.createElement('<mods:recordIdentifier>')
-    identifiernode.setAttribute("source", "CZ PrSTK")
+        print("Writing system number...")
+        try:
+            if not doc.getElementsByTagName("mods:recordInfo"):
+                    # "if not"  = list is empty
+                    # find <mods:mods>, create <mods:recordInfo>, append to the end of child tags
+                    modsroot = doc.getElementsByTagName("mods:mods")[0]
+                    infonode = doc.createElement("mods:recordInfo")
+                    modsroot.appendChild(infonode)
 
-    # create new node with text containing sysno
-    nodetext = doc.createTextNode(sysno)
+            # same thing as above, without creating <mods:recordInfo>
+            infonode = doc.getElementsByTagName('mods:recordInfo')[0]
+            recordidentifier = doc.createElement('mods:recordIdentifier')
+            recordidentifier.setAttribute("source", "CZ PrSTK")
+            infonode.appendChild(recordidentifier)
+            identifertext = doc.createTextNode(sysno)
+            recordidentifier.appendChild(identifertext)
 
-    # append child node with text to identifierinfo
-    identifiernode.appendChild(nodetext)
+        except IndexError:
+            status("fail")
+            print("---------------------------------------------------------------------")
+            raise RuntimeError
 
-    # add newline after new child
-    newline = doc.createTextNode('\n')
-    identifiernode.insertBefore(newline)
+        documentroot = doc.getElementsByTagName("foxml:digitalObject")[0]
+        with open("./output/uuid_" + uuid + ".xml", "w") as outfile:
+            outfile.write(documentroot.toprettyxml())
 
-    # create new document in output directory and write contents of xml file into it
-    outputdocument = open("./output/uuid_" + uuid + ".xml", "w")
-    documentroot.writexml(outputdocument)
-
-    status("ok")
-    print("---------------------------------------------------------------------")
+        status("ok")
+        print("---------------------------------------------------------------------")

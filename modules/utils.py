@@ -68,9 +68,9 @@ def matchdata(catalogdata, uuidlist):
 
         else:
             # if no match is found, raise exception
-            print("Failed to match: " + uuid.group(0) + "with systemnumber")
+            print("Failed to match: " + uuid + "with system number")
             with open("./error_log.txt", "w+") as errlist:
-                errlist.write("Failed to match: " + uuid.group(0))
+                errlist.write("Failed to match: " + uuid)
             continue
 
     return generatedpairs

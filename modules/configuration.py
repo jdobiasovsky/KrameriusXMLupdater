@@ -36,9 +36,9 @@ def verifyconfig(config):
                     exit()
 
     if config["makebackup"] == "no":
-        dirlist = (os.path.isdir(config["fcrepo_export"]))
+        dirlist = os.path.isdir(config["fcrepo_export"])
 
-        if all(dirlist) is False:
+        if dirlist is False:
             print("It seems that this is the first time you're running the program.\n"
                   "Checking for necessary directories before validating input files")
 
@@ -58,8 +58,8 @@ def verifyconfig(config):
             direval = False
 
     if config["makebackup"] == "no":
-        dirlist = (os.path.isdir(config["fcrepo_export"]))
-        if all(dirlist) is False:
+        dirlist = os.path.isdir(config["fcrepo_export"])
+        if dirlist is False:
             direval = False
     print("Finished directory check...")
 

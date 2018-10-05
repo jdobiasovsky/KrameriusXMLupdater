@@ -58,7 +58,19 @@ if config["makebackup"] == "yes":
 
 
 termcolor.cprint("\n=======================Editing=======================", 'green')
+sucesscount = 0
+failcount = 0
+
 for key, value in data_pairs.items():
-    xmlhandler.xmledit(fcrepo_export=config["fcrepo_export"], uuid=key, sysno=value,
-                       checkforexistingsysno=config["checksysno"])
-    # TODO *mortal kombat voice* FINISH THIS!
+    try:
+        xmlhandler.xmledit(fcrepo_export=config["fcrepo_export"], uuid=key, sysno=value,
+                           checkforexistingsysno=config["checksysno"])
+        sucesscount += 1
+
+    except RuntimeError:
+        print("File is missing <mods:mods>, unable to add system number")
+        failcount += 1
+        continue
+
+print("Files processed: ", sucesscount)
+print("Files failed: ", failcount)
