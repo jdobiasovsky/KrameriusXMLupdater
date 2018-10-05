@@ -2,7 +2,6 @@ import os
 import xml.dom.minidom
 from modules import termcolor
 from modules.utils import yes_no
-from bs4 import BeautifulSoup
 
 
 def loadfilelist(fcrepo_export):
