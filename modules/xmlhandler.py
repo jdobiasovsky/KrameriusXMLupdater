@@ -2,7 +2,7 @@ import os
 import xml.dom.minidom
 from modules import termcolor
 from modules.utils import yes_no
-from bs4 import BeautifulSoup
+import shutil
 
 
 def loadfilelist(fcrepo_export):
@@ -156,6 +156,9 @@ def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
         except IndexError:
             print("Unable to find <mods:mods> element, please verify the file.")
             status("fail")
+            if os.path.exists("./failed") is False:
+                    os.mkdir("./failed")
+            shutil.copy2(fcrepo_export + "uuid_" + uuid + ".xml", "failed/uuid_" + uuid + ".xml")
             print("---------------------------------------------------------------------")
             raise RuntimeError
 
