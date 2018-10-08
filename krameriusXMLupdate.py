@@ -68,7 +68,6 @@ for key, value in data_pairs.items():
         sucesscount += 1
 
     except RuntimeError:
-        print("File is missing <mods:mods>, unable to add system number")
         failcount += 1
         continue
 

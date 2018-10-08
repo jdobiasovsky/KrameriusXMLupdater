@@ -2,6 +2,7 @@ import os
 import xml.dom.minidom
 from modules import termcolor
 from modules.utils import yes_no
+from bs4 import BeautifulSoup
 
 
 def loadfilelist(fcrepo_export):
@@ -73,6 +74,15 @@ def status(code):
         termcolor.cprint("Failed!", 'red')
 
 
+def xml_remove_empty_lines(filename):
+    with open(filename) as filehandle:
+        lines = filehandle.readlines()
+
+    with open(filename, 'w') as filehandle:
+        lines = filter(lambda x: x.strip(), lines)
+        filehandle.writelines(lines)
+
+
 def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
     # opens file, parses documents and makes necessary edits
     print("Editing " + fcrepo_export + "uuid_" + uuid + ".xml")
@@ -87,6 +97,15 @@ def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
                         attribute="source",
                         attrvalue="CZ PrSTK",
                         parseddoc=doc) is True:
+
+                if sysno == returnattrval(lookfortag="mods:recordIdentifier",
+                                          attribute="source",
+                                          attrvalue="CZ PrSTK",
+                                          parseddoc=doc):
+                    print("Document has already matching sysno assigned, will not update...")
+                    status("skip")
+                    print("---------------------------------------------------------------------")
+                    return
 
                 print("Document " + uuid + " already has sysno assigned...")
 
@@ -103,6 +122,20 @@ def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
                     print("---------------------------------------------------------------------")
                     return
 
+                # if not skipped, execute below
+                recordidentifier = doc.getElementsByTagName('mods:recordIdentifier')[0]
+                if recordidentifier.getAttribute("source") == "CZ PrSTK":
+                    recordidentifier.removeChild(recordidentifier.firstChild)
+                    identifertext = doc.createTextNode(sysno)
+                    recordidentifier.appendChild(identifertext)
+
+                    documentroot = doc.getElementsByTagName("foxml:digitalObject")[0]
+                    with open("./output/uuid_" + uuid + ".xml", "w") as outfile:
+                        outfile.write(documentroot.toprettyxml())
+                        xml_remove_empty_lines("./output/uuid_" + uuid + ".xml")
+                return
+
+        # if the check above doesn't trigger, write system number
         print("Writing system number...")
         try:
             if not doc.getElementsByTagName("mods:recordInfo"):
@@ -121,6 +154,7 @@ def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
             recordidentifier.appendChild(identifertext)
 
         except IndexError:
+            print("Unable to find <mods:mods> element, please verify the file.")
             status("fail")
             print("---------------------------------------------------------------------")
             raise RuntimeError
@@ -128,6 +162,7 @@ def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
         documentroot = doc.getElementsByTagName("foxml:digitalObject")[0]
         with open("./output/uuid_" + uuid + ".xml", "w") as outfile:
             outfile.write(documentroot.toprettyxml())
+            xml_remove_empty_lines("./output/uuid_" + uuid + ".xml")
 
         status("ok")
         print("---------------------------------------------------------------------")
