@@ -148,6 +148,7 @@ def xmledit(fcrepo_export, uuid, sysno, checkforexistingsysno):
                         documentroot = doc.documentElement
                         with open("./output/uuid_" + uuid + ".xml", "w") as outfile:
                             outfile.write(documentroot.toprettyxml())
+                            xml_remove_empty_lines("./output/uuid_" + uuid + ".xml")
                         status("ok")
                         print("---------------------------------------------------------------------")
                     return
